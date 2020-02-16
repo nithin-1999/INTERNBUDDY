@@ -1,0 +1,152 @@
+---
+title: "SELECTING TOP CAND FOR DS and WebDev"
+author: "NITHIN C"
+date: "17/02/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+importing required libraries
+
+```{r }
+library(openxlsx) #for opening xlsx files
+library(tidyverse) #to clean and Process
+library(tidyr)  # data munging
+movo<-read.xlsx("mv.xlsx",startRow = 1)
+```
+
+
+WE RENAMES THE COLNAMES TO SIMPLIFY THE TASK..
+```{r warning=TRUE}
+colnames(movo)
+sapply(movo,class)
+ movo<- movo %>% rename(APK_ID=Application_ID,City=Current.City,Python=`Python.(out.of.3)`)
+```
+
+
+```{r}
+ movo <- movo %>% rename(R=`R.Programming.(out.of.3)`)
+
+movo <- movo %>% rename(PHP=`PHP.(out.of.3)`)
+
+movo <- movo %>% rename(DL = `Deep.Learning.(out.of.3)`)
+ movo <- movo %>% rename(MYSQL=`MySQL.(out.of.3)`) 
+ movo1 <- movo %>% rename(HTML=`HTML.(out.of.3)`)
+ movo <- movo %>% rename(JavaScript=`JavaScript.(out.of.3)`)
+movo <- movo %>% rename(AJAX=`AJAX.(out.of.3)`)
+ movo <- movo %>% rename(CSS=`CSS.(out.of.3)`)
+ movo <- movo %>% rename(Bootstrap=`Bootstrap.(out.of.3)`)
+ movo <- movo %>% rename(MongoDB=`MongoDB.(out.of.3)`)
+ movo <- movo %>% rename(NodeJS=`Node.js.(out.of.3)`)
+ movo <- movo %>% rename(ReactJS=`ReactJS.(out.of.3)`)
+```
+
+```{r}
+ 
+movo <- movo %>% rename(HTML=`HTML.(out.of.3)`)
+colnames(movo)
+
+```
+ HERE WE SEGREGATE THE COLUMNS THAT ARE MOST RELEVANT TO DATA_SCIENCE
+
+```{r}
+ data_scientist<-select(movo,APK_ID,City,Python:DL,MYSQL,MongoDB,Degree,Stream,Performance_UG,Performance_PG,Performance_10,Performance_12)
+colnames(data_scientist)
+```
+ 
+  HERE WE SEGREGATE THE COLUMNS THAT ARE MOST RELEVANT TO WEB_DEVELOPMENT
+
+ 
+```{r }
+ Web_Development<-select(movo,APK_ID,City,Python,MYSQL,HTML,CSS,JavaScript,AJAX,Bootstrap,MongoDB,NodeJS,ReactJS,Degree,Stream,Performance_PG,Performance_UG,Performance_12,Performance_10)
+
+
+```
+ 
+```{r }
+ colnames(Web_Development)
+```
+
+AS WE NOW THE LEVELS 0=NO KNOWLDGE ,1= BEGINNER ,2=INTERMEDIATE ,3= PROFICIENT
+
+HENCE WE MULTIPLY THE ATTRIBUTES WITH PRE_DEFINED NUMBER TO MATCH THE MOST REQUIRED CANDIDATE BASED ON THE IMPORTANCE OF THE LANGUAGE AND IT'S POPULARITY.
+
+```{r}
+ Web_Development$MYSQL<-4*(Web_Development$MYSQL)
+``` 
+
+```{r}
+ Web_Development$JavaScript<-5*(Web_Development$JavaScript)
+ Web_Development$HTML<-3*(Web_Development$HTML)
+ Web_Development$CSS<-3.5*(Web_Development$CSS)
+ Web_Development$AJAX<-2.5*(Web_Development$AJAX)
+ Web_Development$MongoDB<-2.8*(Web_Development$MongoDB)
+ Web_Development$NodeJS<-1.8*(Web_Development$NodeJS)
+ Web_Development$ReactJS<-1.0*(Web_Development$ReactJS)
+```
+ 
+```{r }
+ data_scientist$Python<-4*(data_scientist$Python)
+ data_scientist$DL<-5*(data_scientist$DL)
+ data_scientist$R<-4*(data_scientist$R)
+ data_scientist$MYSQL<-2*(data_scientist$MYSQL)
+ data_scientist$MongoDB<-2.5*(data_scientist$MongoDB) 
+```
+ 
+```{r }
+ data_scientist$Performance_10<-gsub("(.*)/.*","\\1",data_scientist$Performance_10)
+  data_scientist$Performance_12<-gsub("(.*)/.*","\\1",data_scientist$Performance_12)
+  data_scientist$Performance_UG<-gsub("(.*)/.*","\\1",data_scientist$Performance_UG)
+  data_scientist$Performance_PG<-gsub("(.*)/.*","\\1",data_scientist$Performance_PG)
+```
+  
+```{r }
+  Web_Development$Performance_10<-gsub("(.*)/.*","\\1",Web_Development$Performance_10)
+   Web_Development$Performance_12<-gsub("(.*)/.*","\\1",Web_Development$Performance_12)
+  Web_Development$Performance_PG<-gsub("(.*)/.*","\\1",Web_Development$Performance_PG)
+    Web_Development$Performance_UG<-gsub("(.*)/.*","\\1",Web_Development$Performance_UG)
+```
+
+HERE WE CREATE A NEW FOR DATA_SCIENTIST CALLED TOTAL WHICH IS THE SUM(PYTHON,R,MYSQL,DL,MONGODB)
+
+AGAIN WE CREATE A NEW FOR WEB_DEVELOPMENT CALLED TOTAL WHICH IS THE SUM(PYTHON,MYSQL,HTML,CSS,JAVASCRIPT,AJAX,BOOTSTRAP,MONGODB,NODEJS,REACTJS
+
+```{r}
+Web_Development["Total"]=rowSums(Web_Development[,3:12])
+
+data_scientist["Total"]=rowSums(data_scientist[,3:7])
+```
+
+WE
+
+```{r}
+datds<- data_scientist[order(data_scientist$Total),]
+head(datds,2)
+```
+    
+HERE WE SORT THE VALUES IN DECREASING ORDER ON THE VALUE OF TOTAL FOR BOTH DATA_SCIENCE AND WEB_DEVELOPMENT
+
+```{r}
+colnames(data_scientist)
+top_data_sci_interns <- data_scientist[order(data_scientist[,"Total"],decreasing = T),]
+head(top_data_sci_interns,19)
+```
+m[order(m[,"h"], decreasing = T), ]
+
+```{r}
+top_web_dev_interns <- Web_Development[order(Web_Development[,"Total"],decreasing = T),]
+head(top_web_dev_interns,19)
+```
+
+SUMMARY
+
+IT IS NOT MANDATORY THAT EVERY DATASET MUST use A MACHINE LEARNING ALGORITH TO SOLVE A PROBLEM.HERE THE PROBLEM DESCRIPTION WAS TO HELP "INTERNBUDDY" SELECTING THEIR CANDIDATES FOR BOTH DATA_SCIENCE AND WEB_DEVELOPMENT ,THE ABOVE ANALYTICS SELECTS THE TOP 20 DATA_SCIENCE AND WEB_DEVELOPMENT BASED ON THEIR SCORES(TOTAL.)
