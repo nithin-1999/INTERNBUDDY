@@ -11,16 +11,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
 importing required libraries
 
 ```{r }
 library(openxlsx) #for opening xlsx files
 library(tidyverse) #to clean and Process
-library(tidyr)  # data munging
+library(tidyr)# data munging
+library(dplyr)
 movo<-read.xlsx("mv.xlsx",startRow = 1)
 ```
 
@@ -32,6 +29,7 @@ sapply(movo,class)
  movo<- movo %>% rename(APK_ID=Application_ID,City=Current.City,Python=`Python.(out.of.3)`)
 ```
 
+I rename the observations for ease of use(FEATURE ENGINEERING)
 
 ```{r}
  movo <- movo %>% rename(R=`R.Programming.(out.of.3)`)
@@ -116,9 +114,9 @@ HENCE WE MULTIPLY THE ATTRIBUTES WITH PRE_DEFINED NUMBER TO MATCH THE MOST REQUI
     Web_Development$Performance_UG<-gsub("(.*)/.*","\\1",Web_Development$Performance_UG)
 ```
 
-HERE WE CREATE A NEW FOR DATA_SCIENTIST CALLED TOTAL WHICH IS THE SUM(PYTHON,R,MYSQL,DL,MONGODB)
+HERE WE CREATE A NEW COLUMN FOR DATA_SCIENTIST CALLED TOTAL WHICH IS THE SUM(PYTHON,R,MYSQL,DL,MONGODB)
 
-AGAIN WE CREATE A NEW FOR WEB_DEVELOPMENT CALLED TOTAL WHICH IS THE SUM(PYTHON,MYSQL,HTML,CSS,JAVASCRIPT,AJAX,BOOTSTRAP,MONGODB,NODEJS,REACTJS
+AGAIN WE CREATE A NEW COLUMN FOR WEB_DEVELOPMENT CALLED TOTAL WHICH IS THE SUM(PYTHON,MYSQL,HTML,CSS,JAVASCRIPT,AJAX,BOOTSTRAP,MONGODB,NODEJS,REACTJS
 
 ```{r}
 Web_Development["Total"]=rowSums(Web_Development[,3:12])
@@ -126,26 +124,35 @@ Web_Development["Total"]=rowSums(Web_Development[,3:12])
 data_scientist["Total"]=rowSums(data_scientist[,3:7])
 ```
 
-WE
 
-```{r}
-datds<- data_scientist[order(data_scientist$Total),]
-head(datds,2)
-```
-    
 HERE WE SORT THE VALUES IN DECREASING ORDER ON THE VALUE OF TOTAL FOR BOTH DATA_SCIENCE AND WEB_DEVELOPMENT
+
 
 ```{r}
 colnames(data_scientist)
-top_data_sci_interns <- data_scientist[order(data_scientist[,"Total"],decreasing = T),]
-head(top_data_sci_interns,19)
-```
-m[order(m[,"h"], decreasing = T), ]
+summary(data_scientist)
+IQR(data_scientist$Total)
+data_scientist<-mutate(data_scientist,SCORE_ON_AVG=Total-mean(Total,na.rm=T))
+head(data_scientist,3)
+summary(data_scientist)
 
-```{r}
-top_web_dev_interns <- Web_Development[order(Web_Development[,"Total"],decreasing = T),]
-head(top_web_dev_interns,19)
+data_scientist["SELECTION_STATUS"]=if_else(movo$Total>=IQR(data_scientist$Total),"YES","NO")
+datadsdev_interns <- data_scientist[order(data_scientist[,"Total"],decreasing = T),]
+ head(datadsdev_interns,9)
 ```
+```{r}
+colnames(Web_Development)
+summary(Web_Development)
+IQR(Web_Development$Total)
+Web_Development<-mutate(Web_Development,SCORE_ON_AVG=Total-mean(Total,na.rm=T))
+head(Web_Development,3)
+summary(Web_Development)
+
+Web_Development["SELECTION_STATUS"]=if_else(Web_Development$Total>=15,"YES","NO")
+web_dev_TOP_10_interns <- Web_Development[order(Web_Development[,"Total"],decreasing = T),]
+ head(web_dev_TOP_10_interns,10)
+```
+require
 
 SUMMARY
 
